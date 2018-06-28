@@ -1,11 +1,11 @@
 
 #include "cef_ui_app.h"
 #include "cef_ui_handler.h"
-#include "cef_browser.h"
-#include "cef_command_line.h"
-#include "views/cef_browser_view.h"
-#include "views/cef_window.h"
-#include "wrapper/cef_helpers.h"
+#include "cef_headers/include/cef_browser.h"
+#include "cef_headers/include/cef_command_line.h"
+#include "cef_headers/include/views/cef_browser_view.h"
+#include "cef_headers/include/views/cef_window.h"
+#include "cef_headers/include/wrapper/cef_helpers.h"
 
 namespace cef_ui
 {

@@ -1,7 +1,7 @@
 #ifndef _CEF_UI_APP_H_
 #define _CEF_UI_APP_H_
 
-#include "cef_app.h"
+#include "cef_headers/include/cef_app.h"
 
 namespace cef_ui
 {

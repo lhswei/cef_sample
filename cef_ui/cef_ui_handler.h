@@ -2,7 +2,7 @@
 #define _CEF_UI_HANDLER_H_
 
 #include <list>
-#include "cef_client.h"
+#include "cef_headers/include/cef_client.h"
 
 
 namespace cef_ui

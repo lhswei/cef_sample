@@ -1,6 +1,6 @@
 #include <windows.h>
 
-#include "cef_sandbox_win.h"
+#include "cef_headers/include/cef_sandbox_win.h"
 #include "cef_ui/cef_ui_app.h"
 
 
@@ -19,10 +19,10 @@
 #endif
 
 // Entry point function for all processes.
-int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPTSTR lpCmdLine,
-                      int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int nCmdShow) {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 

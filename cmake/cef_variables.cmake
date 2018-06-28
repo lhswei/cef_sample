@@ -48,6 +48,10 @@ list(APPEND CEF_COMPILER_FLAGS
   /wd4701       # Ignore "potentially uninitialized local variable" warning
   /wd4702       # Ignore "unreachable code" warning
   /wd4996       # Ignore "function or variable may be unsafe" warning
+  /wd4457       # Ignore "function or variable may be unsafe" warning
+  /wd4458       # Ignore "function or variable may be unsafe" warning
+  /wd4238       # Ignore "function or variable may be unsafe" warning
+  /wd4101       # Ignore "function or variable may be unsafe" warning
   ${CEF_DEBUG_INFO_FLAG}
   )
 list(APPEND CEF_COMPILER_FLAGS_DEBUG
@@ -68,7 +72,7 @@ list(APPEND CEF_EXE_LINKER_FLAGS
   )
 list(APPEND CEF_COMPILER_DEFINES
   WIN32 _WIN32 _WINDOWS             # Windows platform
-  #UNICODE _UNICODE                  # Unicode build
+  UNICODE _UNICODE                  # Unicode build
   WINVER=0x0601 _WIN32_WINNT=0x601  # Targeting Windows 7
   NOMINMAX                          # Use the standard's templated min/max
   WIN32_LEAN_AND_MEAN               # Exclude less common API declarations

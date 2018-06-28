@@ -42,8 +42,8 @@ macro(APPEND_PLATFORM_SOURCES name_of_list)
 endmacro()
 
 # Determine the target output directory based on platform and generator.
-macro(SET_CEF_TARGET_OUT_DIR)
-  set(CEF_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+macro(SET_TARGET_OUT_DIR current_target_out_dir)
+  set(${current_target_out_dir} "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
 endmacro()
 
 # Copy a list of files from one directory to another. Relative files paths are maintained.
@@ -84,13 +84,13 @@ macro(COPY_FILES target file_list source_dir target_dir)
 endmacro()
 
 # Add custom manifest files to an executable target.
-macro(ADD_WINDOWS_MANIFEST manifest_path target extension)
+macro(ADD_WINDOWS_MANIFEST target_out_dir manifest_path target extension)
   add_custom_command(
     TARGET ${target}
     POST_BUILD
     COMMAND "mt.exe" -nologo
             -manifest \"${manifest_path}/${target}.${extension}.manifest\" \"${manifest_path}/compatibility.manifest\"
-            -outputresource:"${CEF_TARGET_OUT_DIR}/${target}.${extension}"\;\#1
+            -outputresource:"${target_out_dir}/${target}.${extension}"\;\#1
     COMMENT "Adding manifest..."
     )
 endmacro()

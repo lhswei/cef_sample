@@ -1,12 +1,13 @@
 
+#include <string>
 #include "cef_ui_app.h"
 #include "cef_ui_handler.h"
-#include "wrapper/cef_helpers.h"
-#include "base/cef_logging.h"
-#include "views/cef_browser_view.h"
-#include "views/cef_window.h"
-#include "base/cef_bind.h"
-#include "wrapper/cef_closure_task.h"
+#include "cef_headers/include/wrapper/cef_helpers.h"
+#include "cef_headers/include/base/cef_logging.h"
+#include "cef_headers/include/views/cef_browser_view.h"
+#include "cef_headers/include/views/cef_window.h"
+#include "cef_headers/include/base/cef_bind.h"
+#include "cef_headers/include/wrapper/cef_closure_task.h"
 
 namespace cef_ui
 {
@@ -138,7 +139,7 @@ namespace cef_ui
 
 	void cef_ui_handler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
 		const CefString& title) {
-		CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
-		SetWindowText(hwnd, std::string(title).c_str());
+		//CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
+		//SetWindowText(hwnd, std::string(title).c_str());
 	}
 }
