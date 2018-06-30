@@ -8,6 +8,7 @@ include_directories(
 	${_CEF_ROOT}/include
 	${_CEF_ROOT}/include/cef_headers
 	${_CEF_ROOT}/include/dx9sdk
+	${_CEF_ROOT}/include/dx9sdk/include
 	${_CEF_ROOT}/lua_source/include
 	${CEF_UI_ROOT})
 
