@@ -29,6 +29,8 @@ public:
 	void RunLoop();
 	void Release();
 
+	bool Update(const void* buffer, size_t width, size_t height);
+
 public:
 	InterfaceWorld uiWorld;
 private:

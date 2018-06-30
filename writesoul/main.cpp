@@ -1,4 +1,6 @@
 // include the basic windows header file
+#include "cef_ui/cef_ui_app.h"
+#include "cef_ui/cef_ui_handler.h"
 #include <windows.h>
 #include <windowsx.h>
 #include "D3DApi.h"
@@ -15,7 +17,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd,
 
 void BeforeCreate();
 void BeforeExit();
-
+void InitCef(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int nCmdShow);
+void CloseCef();
 void test_cout() {
 	const int num = 7;
 	int* ptr = const_cast<int *> (&num);
@@ -43,6 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	// this struct holds information for the window class
 	WNDCLASSEX wc;
 
+	InitCef(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 	// clear out the window class for use
 	ZeroMemory(&wc, sizeof(WNDCLASSEX));
 
@@ -102,6 +109,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	GameApp::Instance()->Release();
 
+	CloseCef();
+
 	BeforeExit();
 	// return this part of the WM_QUIT message to Windows
 	return msg.wParam;
@@ -132,8 +141,48 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 		log("Message Mouse Move: %d %d\n", xPos, yPos);
 	} break;*/
+	case WM_CREATE:
+	{
+		CefWindowInfo window_info;
+		CefBrowserSettings browser_settings;
+		CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
 
+		auto fun = [](const void* buffer, size_t width, size_t height)-> void {
+			GameApp::Instance()->Update(buffer, width, height);
+		};
 
+		handler->SetFun(fun);
+
+		std::string url("https://www.baidu.com/");
+
+		window_info.SetAsPopup(NULL, "cef browser");
+		RECT wndRect;
+		wndRect.left = 10;
+		wndRect.top = 10;
+		wndRect.right = SCREEN_WIDTH / 2;
+		wndRect.bottom = SCREEN_HEIGHT / 2;
+		window_info.SetAsChild(hWnd, wndRect);
+		window_info.SetAsWindowless(hWnd);
+		// Create the first browser window.
+		CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
+			NULL);
+		break;
+
+	}
+	
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+
+		CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
+		if (handler.get())
+		{
+			handler.get()->trigger_resize();
+		}
+		break;
+	}
 	}
 
 	// Handle any messages the switch statement didn't
@@ -181,4 +230,39 @@ void BeforeExit() {
 #ifdef _DEBUG
 	::FreeConsole();
 #endif
+}
+
+void InitCef(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int nCmdShow) {
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+
+	// Enable High-DPI support on Windows 7 or newer.
+	CefEnableHighDPISupport();
+
+	// Provide CEF with command-line arguments.
+	CefMainArgs main_args(hInstance);
+
+	// Specify CEF global settings here.
+	CefSettings settings;
+
+	// SimpleApp implements application-level callbacks for the browser process.
+	// It will create the first browser instance in OnContextInitialized() after
+	// CEF has initialized.
+	CefRefPtr<cef_ui::cef_ui_app> app(new cef_ui::cef_ui_app);
+	// SimpleHandler implements browser-level callbacks.
+	CefRefPtr<cef_ui::cef_ui_handler> handler(new cef_ui::cef_ui_handler(app));
+	settings.multi_threaded_message_loop = 1;
+	settings.windowless_rendering_enabled = 1;
+	//settings.single_process = 1;
+	// Initialize CEF.
+	CefInitialize(main_args, settings, app.get(), NULL);
+
+}
+
+void CloseCef() {
+	// Shut down CEF.
+	CefShutdown();
 }

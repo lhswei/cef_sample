@@ -11,18 +11,18 @@
 
 namespace cef_ui
 {
-	cef_ui_handler* g_instance = NULL;
+	CefRefPtr<cef_ui_handler> g_instance = NULL;
 
-	cef_ui_handler::cef_ui_handler(bool use_views)
-		: use_views_(use_views), is_closing_(false) 
+	cef_ui_handler::cef_ui_handler(CefRefPtr<cef_ui_app> app)
+		: m_app(app), is_closing_(false)
 	{
-		DCHECK(!g_instance);
+		DCHECK(!g_instance.get());
 		g_instance = this;
 	}
 
 	cef_ui_handler::~cef_ui_handler()
 	{
-		g_instance = NULL;
+		//g_instance = NULL;
 	}
 
 	// static
@@ -141,5 +141,53 @@ namespace cef_ui
 		const CefString& title) {
 		//CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
 		//SetWindowText(hwnd, std::string(title).c_str());
+	}
+
+	bool cef_ui_handler::GetViewRect(CefRefPtr<CefBrowser> /*browser*/, CefRect& rect)
+	{
+		// if (this->canvas)
+		// {
+		// 	rect.Set(0, 0, this->canvas->get_width(), this->canvas->get_height());
+		// }
+		// else
+		// {
+		// 	rect.Set(0, 0, 640, 480);
+		// }
+
+		rect.Set(10, 10, 300, 400);
+		return true;
+	}
+
+	void cef_ui_handler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType /*type*/, const RectList& /*dirtyRects*/, const void* buffer, int width, int height)
+	{
+		//Components::XUI::UpdateTexture(buffer, width, height);
+		// if (!this->canvas) return;
+		// if (this->canvas->get_width() == uint32_t(width) && this->canvas->get_height() == uint32_t(height))
+		// {
+		// 	this->canvas->paint(buffer);
+		// }
+		// else
+		// {
+		// 	browser->GetHost()->WasResized();
+		// }
+
+		if (this->m_fun)
+		{
+			this->m_fun(buffer, width, height);
+		}
+	}
+
+	void cef_ui_handler::trigger_resize()
+	{
+		for (auto& browser : this->browser_list_)
+		{
+			//browser->GetHost()->WasResized();
+			browser->GetHost()->Invalidate(PET_VIEW);
+		}
+	}
+
+	void cef_ui_handler::SetFun(std::function<void(const void*, size_t, size_t)> fun)
+	{
+		this->m_fun = fun;
 	}
 }

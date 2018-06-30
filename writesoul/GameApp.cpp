@@ -79,6 +79,11 @@ void GameApp::Release() {
 	d3d9->Clean3d();
 }
 
+bool GameApp::Update(const void* _buffer, size_t width, size_t height)
+{
+	return d3d9->Update(_buffer, width, height);
+}
+
 //--------------------------------- Lua Func
 int C_CreateUI(lua_State *L) {
 	if (lua_gettop(L) != 4) {

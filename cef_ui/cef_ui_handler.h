@@ -2,6 +2,7 @@
 #define _CEF_UI_HANDLER_H_
 
 #include <list>
+#include <functional>
 #include "cef_headers/include/cef_client.h"
 
 
@@ -9,10 +10,10 @@ namespace cef_ui
 {
 	class cef_ui_app;
 
-	class cef_ui_handler : public CefClient, public CefDisplayHandler, public CefLifeSpanHandler, public CefLoadHandler
+	class cef_ui_handler : public CefClient, public CefDisplayHandler, public CefLifeSpanHandler, public CefLoadHandler, public CefRenderHandler
 	{
 	public:
-        explicit cef_ui_handler(bool use_views);
+        explicit cef_ui_handler(CefRefPtr<cef_ui_app> app);
 		~cef_ui_handler();
 
 		// Provide access to the single global instance of this object.
@@ -26,6 +27,14 @@ namespace cef_ui
 			return this;
 		}
 		virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
+
+		virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE
+		{
+			return this;
+		}
+
+		virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect) override;
+		virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList &dirtyRects, const void *buffer, int width, int height) override;
 
 		// CefDisplayHandler methods:
 		virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -48,19 +57,24 @@ namespace cef_ui
 
 		bool IsClosing() const { return is_closing_; }
 
+		void trigger_resize();
+
+		void SetFun(std::function<void(const void*, size_t, size_t)>);
 	private:
 		// Platform-specific implementation.
 		void PlatformTitleChange(CefRefPtr<CefBrowser> browser,
 			const CefString& title);
 
-		// True if the application is using the Views framework.
-		const bool use_views_;
+		CefRefPtr<cef_ui_app> m_app;
 
 		// List of existing browser windows. Only accessed on the CEF UI thread.
 		typedef std::list<CefRefPtr<CefBrowser>> BrowserList;
 		BrowserList browser_list_;
 
 		bool is_closing_;
+
+		std::function<void(const void*, size_t, size_t)> m_fun = nullptr;
+
 		IMPLEMENT_REFCOUNTING(cef_ui_handler);
 	};
 }

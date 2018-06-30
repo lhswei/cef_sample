@@ -52,6 +52,7 @@ list(APPEND CEF_COMPILER_FLAGS
   /wd4458       # Ignore "function or variable may be unsafe" warning
   /wd4238       # Ignore "function or variable may be unsafe" warning
   /wd4101       # Ignore "function or variable may be unsafe" warning
+  /wd4003       # Ignore "function or variable may be unsafe" warning
   ${CEF_DEBUG_INFO_FLAG}
   )
 list(APPEND CEF_COMPILER_FLAGS_DEBUG

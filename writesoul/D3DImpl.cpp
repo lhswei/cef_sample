@@ -1,6 +1,5 @@
 #pragma once
 #include "D3DApi.h"
-#include "utils.h"
 
 //D3DApi::D3DApi() {
 //	log("D3d Create\n");
@@ -37,15 +36,45 @@ bool D3DApi::InitD3d(HWND hwnd) {
 		log("初始化d3d失败！\n");
 		return false;
 	}
+
 	init_graphics();
-	d3ddev->SetRenderState(D3DRS_LIGHTING, FALSE); 
+	d3ddev->SetRenderState(D3DRS_LIGHTING, FALSE);
 	d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);    // both sides of the triangles
 	d3ddev->SetRenderState(D3DRS_ZENABLE, TRUE);
+
+	//hr = this->d3ddev->CreateTexture(300, 400, 1, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &this->texture, NULL);
+	hr = D3DXCreateTexture(this->d3ddev, 300, 400, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, d3dpp.BackBufferFormat, D3DPOOL_MANAGED, &this->texture);
+	if (hr != D3D_OK)
+	{
+		log("初始化d3d texture失败！\n");
+	}
+	HRESULT hr1 = D3DERR_NOTAVAILABLE;
+	if (hr1)
+		log("111");
+	HRESULT hr2 = D3DERR_OUTOFVIDEOMEMORY;
+	if (hr2)
+		log("111");
+	HRESULT hr3 = D3DERR_INVALIDCALL;
+	if (hr3)
+		log("111");
+	HRESULT hr4 = D3DXERR_INVALIDDATA;
+	if (hr4)
+		log("111");
+
 	return true;
 }
 
 void D3DApi::RenderFrame(const std::vector<std::unique_ptr<GObject>>& objs) {
 	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+	std::lock_guard<std::recursive_mutex> _(this->mutex);
+
+	if (this->requires_update)
+	{
+		this->perform_update(this->buffer);
+		this->requires_update = false;
+	}
+
 	d3ddev->BeginScene();
 
 	// directX默认是左手坐标系
@@ -86,6 +115,118 @@ void D3DApi::Clean3d() {
 	v_buffer->Release();
 	d3ddev->Release();
 	d3d->Release();
+	free_buffer();
+}
+
+bool D3DApi::Update(const void* _buffer, size_t width, size_t height)
+{
+	size_t nlen = width * height;
+	if (!_buffer || nlen == 0)
+		return false;
+
+	new_buffer(width, height);
+
+	if (!this->buffer)
+	{
+		return false;
+	}
+
+	do {
+		std::lock_guard<std::recursive_mutex> _(this->mutex);
+		std::memcpy(this->buffer, _buffer, width * height * this->bytes_per_pixel);
+		this->requires_update = true;
+	} while (false);
+
+	return true;
+}
+
+void D3DApi::new_buffer(size_t width, size_t height)
+{
+	if (!(this->cef_width > 0 && this->cef_width == width && this->cef_height > 0 && this->cef_height == height))
+	{
+		free_buffer();
+		std::lock_guard<std::recursive_mutex> _(this->mutex);
+		//if (FAILED(D3DXCreateTexture(this->d3ddev, width, height, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, &this->texture)))
+		if(this->d3ddev->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, &this->texture, NULL) != D3D_OK)
+		{
+			if (this->texture)
+			{
+				this->texture->Release();
+				this->texture = nullptr;
+			}
+			return;
+		}
+
+		D3DLOCKED_RECT locked_rect;
+		if (SUCCEEDED(this->texture->LockRect(0, &locked_rect, NULL, 0)))
+		{
+			this->bytes_per_pixel = (int)(locked_rect.Pitch / this->cef_width);
+			this->bytes_per_pixel = this->bytes_per_pixel > 4 ? 4 : this->bytes_per_pixel;
+			this->buffer = new char[width * height * this->bytes_per_pixel];
+			this->cef_width = width;
+			this->cef_height = height;
+			this->texture->UnlockRect(0);
+		}
+	}
+}
+
+void D3DApi::free_buffer()
+{
+	std::lock_guard<std::recursive_mutex> _(this->mutex);
+
+	if (this->buffer)
+	{
+		delete[] this->buffer;
+		this->buffer = nullptr;
+		this->cef_width = 0;
+		this->cef_height = 0;
+	}
+
+	this->requires_update = false;
+
+	if (this->texture)
+	{
+		this->texture->Release();
+		this->texture = nullptr;
+	}
+}
+
+bool D3DApi::perform_update(const void* _buffer)
+{
+	std::lock_guard<std::recursive_mutex> _(this->mutex);
+
+	bool success = false;
+
+	// Check texture and buffer validity
+	if (_buffer && this->texture)
+	{
+		D3DSURFACE_DESC desc;
+		this->texture->GetLevelDesc(0, &desc);
+
+		// Check if updating is allowed
+		if ((desc.Usage & D3DUSAGE_DYNAMIC) == D3DUSAGE_DYNAMIC)
+		{
+			// Map texture buffer
+			D3DLOCKED_RECT locked_rect;
+			if (SUCCEEDED(this->texture->LockRect(0, &locked_rect, NULL, 0)))
+			{
+				// Copy new data into the buffer
+				int bbp = this->bytes_per_pixel;
+				int bpr = this->cef_width * bbp;
+
+				for (uint32_t i = 0; i < this->cef_height; i++)
+				{
+					memcpy((char*)locked_rect.pBits + (i * locked_rect.Pitch), LPSTR(_buffer) + i * bpr, bpr);
+				}
+
+				// Unmap texture
+				this->texture->UnlockRect(0);
+
+				success = true;
+			}
+		}
+	}
+	return success;
 }
 
 // this is the function that puts the 3D models into video RAM
