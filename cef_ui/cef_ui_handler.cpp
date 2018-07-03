@@ -207,7 +207,9 @@ namespace cef_ui
 		for (auto& browser : this->browser_list_)
 		{
 			//browser->GetHost()->WasResized();
+
 			browser->GetHost()->Invalidate(PET_VIEW);
+			//browser->GetHost()->SendKeyEvent();
 		}
 	}
 

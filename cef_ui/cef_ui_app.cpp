@@ -69,6 +69,7 @@ namespace cef_ui
 	//	//command_line->AppendSwitch("ignore-gpu-blacklist");
 	//	//command_line->AppendSwitch("enable-usermedia-screen-capture");
 		command_line->AppendSwitchWithValue("default-encoding", "utf-8");
+		command_line->AppendSwitch("enable-rgba-4444-textures");
 
 	//	/*if (IsWindows10OrGreater())
 	//	{
