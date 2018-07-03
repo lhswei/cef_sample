@@ -44,23 +44,23 @@ bool D3DApi::InitD3d(HWND hwnd) {
 	//D3DXSHADER_USE_LEGACY_D3DX9_31_DLL
 	//hr = this->d3ddev->CreateTexture(300, 400, 1, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &this->texture, NULL);
 
-	hr = D3DXCreateTexture(this->d3ddev, 300, 400, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &this->texture);
-	if (hr != D3D_OK)
-	{
-		log("初始化d3d texture失败！\n");
-	}
-	HRESULT hr1 = D3DERR_NOTAVAILABLE;
-	if (hr1 == hr)
-		log("D3DERR_NOTAVAILABLE\n");
-	HRESULT hr2 = D3DERR_OUTOFVIDEOMEMORY;
-	if (hr2 == hr)
-		log("D3DERR_OUTOFVIDEOMEMORY\n");
-	HRESULT hr3 = D3DERR_INVALIDCALL;
-	if (hr3 == hr)
-		log("D3DERR_INVALIDCALL\n");
-	HRESULT hr4 = D3DXERR_INVALIDDATA;
-	if (hr4 == hr)
-		log("D3DXERR_INVALIDDATA\n");
+	//hr = D3DXCreateTexture(this->d3ddev, 300, 400, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &this->texture);
+	//if (hr != D3D_OK)
+	//{
+	//	log("初始化d3d texture失败！\n");
+	//}
+	//HRESULT hr1 = D3DERR_NOTAVAILABLE;
+	//if (hr1 == hr)
+	//	log("D3DERR_NOTAVAILABLE\n");
+	//HRESULT hr2 = D3DERR_OUTOFVIDEOMEMORY;
+	//if (hr2 == hr)
+	//	log("D3DERR_OUTOFVIDEOMEMORY\n");
+	//HRESULT hr3 = D3DERR_INVALIDCALL;
+	//if (hr3 == hr)
+	//	log("D3DERR_INVALIDCALL\n");
+	//HRESULT hr4 = D3DXERR_INVALIDDATA;
+	//if (hr4 == hr)
+	//	log("D3DXERR_INVALIDDATA\n");
 
 
 	if (FAILED(D3DXCreateSprite(this->d3ddev, &this->sprite)) || !this->sprite)
@@ -120,20 +120,12 @@ void D3DApi::RenderFrame(const std::vector<std::unique_ptr<GObject>>& objs) {
 
 	if (this->sprite && this->texture)
 	{
-		size_t x = 0;
-		size_t y = 0;
-		D3DXVECTOR3 position((float)x, (float)y, -3.0f);
+		size_t x = 100;
+		size_t y = 100;
+		D3DXVECTOR3 position((float)x, (float)y, 0.0f);
 		COLORREF color = 0xffffffff;//D3DCOLOR_XRGB(0, 0, 255);
-		HRESULT hr1 = this->sprite->Begin(D3DXSPRITE_ALPHABLEND);
-		if (hr1)
-		{
-
-		}
-		HRESULT hr = this->sprite->Draw(this->texture, NULL, NULL, &position, color);
-		if (hr)
-		{
-			
-		}
+		this->sprite->Begin(D3DXSPRITE_ALPHABLEND);
+		this->sprite->Draw(this->texture, NULL, NULL, &position, color);
 		this->sprite->End();
 	}
 
