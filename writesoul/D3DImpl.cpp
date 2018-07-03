@@ -41,25 +41,37 @@ bool D3DApi::InitD3d(HWND hwnd) {
 	d3ddev->SetRenderState(D3DRS_LIGHTING, FALSE);
 	d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);    // both sides of the triangles
 	d3ddev->SetRenderState(D3DRS_ZENABLE, TRUE);
-
+	//D3DXSHADER_USE_LEGACY_D3DX9_31_DLL
 	//hr = this->d3ddev->CreateTexture(300, 400, 1, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &this->texture, NULL);
-	hr = D3DXCreateTexture(this->d3ddev, 300, 400, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, d3dpp.BackBufferFormat, D3DPOOL_MANAGED, &this->texture);
+
+	hr = D3DXCreateTexture(this->d3ddev, 300, 400, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &this->texture);
 	if (hr != D3D_OK)
 	{
 		log("初始化d3d texture失败！\n");
 	}
 	HRESULT hr1 = D3DERR_NOTAVAILABLE;
-	if (hr1)
-		log("111");
+	if (hr1 == hr)
+		log("D3DERR_NOTAVAILABLE\n");
 	HRESULT hr2 = D3DERR_OUTOFVIDEOMEMORY;
-	if (hr2)
-		log("111");
+	if (hr2 == hr)
+		log("D3DERR_OUTOFVIDEOMEMORY\n");
 	HRESULT hr3 = D3DERR_INVALIDCALL;
-	if (hr3)
-		log("111");
+	if (hr3 == hr)
+		log("D3DERR_INVALIDCALL\n");
 	HRESULT hr4 = D3DXERR_INVALIDDATA;
-	if (hr4)
-		log("111");
+	if (hr4 == hr)
+		log("D3DXERR_INVALIDDATA\n");
+
+
+	if (FAILED(D3DXCreateSprite(this->d3ddev, &this->sprite)) || !this->sprite)
+	{
+		if (this->sprite)
+		{
+			this->sprite->Release();
+			this->sprite = nullptr;
+		}
+		log("初始化d3d sprite 失败！\n");
+	}
 
 	return true;
 }
@@ -105,7 +117,26 @@ void D3DApi::RenderFrame(const std::vector<std::unique_ptr<GObject>>& objs) {
 	}
 	//MoveFrame(d3ddev);
 	//DrawRect(this);
-	
+
+	if (this->sprite && this->texture)
+	{
+		size_t x = 0;
+		size_t y = 0;
+		D3DXVECTOR3 position((float)x, (float)y, -3.0f);
+		COLORREF color = 0xffffffff;//D3DCOLOR_XRGB(0, 0, 255);
+		HRESULT hr1 = this->sprite->Begin(D3DXSPRITE_ALPHABLEND);
+		if (hr1)
+		{
+
+		}
+		HRESULT hr = this->sprite->Draw(this->texture, NULL, NULL, &position, color);
+		if (hr)
+		{
+			
+		}
+		this->sprite->End();
+	}
+
 	d3ddev->EndScene();
 	d3ddev->Present(NULL, NULL, NULL, NULL);
 }
@@ -116,6 +147,11 @@ void D3DApi::Clean3d() {
 	d3ddev->Release();
 	d3d->Release();
 	free_buffer();
+	if (this->sprite)
+	{
+		this->sprite->Release();
+		this->sprite = nullptr;
+	}
 }
 
 bool D3DApi::Update(const void* _buffer, size_t width, size_t height)
@@ -147,7 +183,8 @@ void D3DApi::new_buffer(size_t width, size_t height)
 		free_buffer();
 		std::lock_guard<std::recursive_mutex> _(this->mutex);
 		//if (FAILED(D3DXCreateTexture(this->d3ddev, width, height, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, &this->texture)))
-		if(this->d3ddev->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, &this->texture, NULL) != D3D_OK)
+		HRESULT hr = D3DXCreateTexture(this->d3ddev, width, height, D3DX_DEFAULT, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &this->texture);
+		if(hr != D3D_OK)
 		{
 			if (this->texture)
 			{
@@ -160,7 +197,7 @@ void D3DApi::new_buffer(size_t width, size_t height)
 		D3DLOCKED_RECT locked_rect;
 		if (SUCCEEDED(this->texture->LockRect(0, &locked_rect, NULL, 0)))
 		{
-			this->bytes_per_pixel = (int)(locked_rect.Pitch / this->cef_width);
+			this->bytes_per_pixel = (int)(locked_rect.Pitch / width);
 			this->bytes_per_pixel = this->bytes_per_pixel > 4 ? 4 : this->bytes_per_pixel;
 			this->buffer = new char[width * height * this->bytes_per_pixel];
 			this->cef_width = width;
@@ -203,7 +240,7 @@ bool D3DApi::perform_update(const void* _buffer)
 		D3DSURFACE_DESC desc;
 		this->texture->GetLevelDesc(0, &desc);
 
-		// Check if updating is allowed
+		// Check if updating is allowed-
 		if ((desc.Usage & D3DUSAGE_DYNAMIC) == D3DUSAGE_DYNAMIC)
 		{
 			// Map texture buffer

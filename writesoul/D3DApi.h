@@ -36,6 +36,7 @@ public:
 	LPDIRECT3DVERTEXBUFFER9 v_buffer = NULL;    // the pointer to the vertex buffer
 	LPDIRECT3DINDEXBUFFER9 i_buffer = NULL;
 	LPDIRECT3DTEXTURE9 texture = nullptr;
+	LPD3DXSPRITE sprite = nullptr;
 	float win_w, win_h;
 };
 

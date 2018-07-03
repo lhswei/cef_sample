@@ -157,10 +157,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 		window_info.SetAsPopup(NULL, "cef browser");
 		RECT wndRect;
-		wndRect.left = 10;
-		wndRect.top = 10;
-		wndRect.right = SCREEN_WIDTH / 2;
-		wndRect.bottom = SCREEN_HEIGHT / 2;
+		wndRect.left = 0;//SCREEN_WIDTH / 4;
+		wndRect.top = 0;// SCREEN_HEIGHT / 4;
+		wndRect.right = 300;// (SCREEN_WIDTH * 3) / 4;
+		wndRect.bottom = 400;// (SCREEN_HEIGHT * 3) / 4;
 		window_info.SetAsChild(hWnd, wndRect);
 		window_info.SetAsWindowless(hWnd);
 		// Create the first browser window.

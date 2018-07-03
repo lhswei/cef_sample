@@ -52,6 +52,19 @@ namespace cef_ui
 			const CefString& errorText,
 			const CefString& failedUrl) OVERRIDE;
 
+		// CefLifeSpanHandler methods
+		virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+			CefRefPtr<CefFrame> frame,
+			const CefString& target_url,
+			const CefString& target_frame_name,
+			WindowOpenDisposition target_disposition,
+			bool user_gesture,
+			const CefPopupFeatures& popupFeatures,
+			CefWindowInfo& windowInfo,
+			CefRefPtr<CefClient>& client,
+			CefBrowserSettings& settings,
+			bool* no_javascript_access) OVERRIDE;
+
 		// Request that all existing browser windows close.
 		void CloseAllBrowsers(bool force_close);
 
