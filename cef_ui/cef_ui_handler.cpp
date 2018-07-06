@@ -1,13 +1,15 @@
 
-#include <string>
-#include "cef_ui_app.h"
-#include "cef_ui_handler.h"
 #include "cef_headers/include/wrapper/cef_helpers.h"
 #include "cef_headers/include/base/cef_logging.h"
 #include "cef_headers/include/views/cef_browser_view.h"
 #include "cef_headers/include/views/cef_window.h"
 #include "cef_headers/include/base/cef_bind.h"
 #include "cef_headers/include/wrapper/cef_closure_task.h"
+#include <string>
+#include <windowsx.h>
+#include "cef_ui_app.h"
+#include "cef_ui_handler.h"
+#include "cef_util_win.h"
 
 namespace cef_ui
 {
@@ -202,14 +204,13 @@ namespace cef_ui
 		}
 	}
 
-	void cef_ui_handler::trigger_resize()
+	void cef_ui_handler::OnPaint()
 	{
 		for (auto& browser : this->browser_list_)
 		{
 			//browser->GetHost()->WasResized();
 
 			browser->GetHost()->Invalidate(PET_VIEW);
-			//browser->GetHost()->SendKeyEvent();
 		}
 	}
 
@@ -217,4 +218,253 @@ namespace cef_ui
 	{
 		this->m_fun = fun;
 	}
+
+	void cef_ui_handler::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		for (auto& browser : this->browser_list_)
+		{
+			CefKeyEvent event;
+			event.windows_key_code = wParam;
+			event.native_key_code = lParam;
+			event.is_system_key = message == WM_SYSCHAR || message == WM_SYSKEYDOWN ||
+				message == WM_SYSKEYUP;
+
+			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
+				event.type = KEYEVENT_RAWKEYDOWN;
+			else if (message == WM_KEYUP || message == WM_SYSKEYUP)
+				event.type = KEYEVENT_KEYUP;
+			else
+				event.type = KEYEVENT_CHAR;
+			event.modifiers = GetCefKeyboardModifiers(wParam, lParam);
+			browser->GetHost()->SendKeyEvent(event);
+		}
+	}
+
+	void cef_ui_handler::OnFocus(bool setFocus) {
+		for (auto& browser : this->browser_list_)
+		{
+			browser->GetHost()->SendFocusEvent(setFocus);
+		}
+	}
+
+	void cef_ui_handler::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+		for (auto& browser : this->browser_list_)
+		{
+			CefRefPtr<CefBrowserHost> browser_host;
+			browser_host = browser->GetHost();
+			HWND hwnd_ = browser_host->GetWindowHandle();
+			LONG currentTime = 0;
+			bool cancelPreviousClick = false;
+
+			if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN ||
+				message == WM_MBUTTONDOWN || message == WM_MOUSEMOVE ||
+				message == WM_MOUSELEAVE) {
+				currentTime = GetMessageTime();
+				int x = GET_X_LPARAM(lParam);
+				int y = GET_Y_LPARAM(lParam);
+				cancelPreviousClick =
+					(abs(last_click_x_ - x) > (GetSystemMetrics(SM_CXDOUBLECLK) / 2)) ||
+					(abs(last_click_y_ - y) > (GetSystemMetrics(SM_CYDOUBLECLK) / 2)) ||
+					((currentTime - last_click_time_) > GetDoubleClickTime());
+				if (cancelPreviousClick &&
+					(message == WM_MOUSEMOVE || message == WM_MOUSELEAVE)) {
+					last_click_count_ = 0;
+					last_click_x_ = 0;
+					last_click_y_ = 0;
+					last_click_time_ = 0;
+				}
+			}
+
+			switch (message) {
+			case WM_LBUTTONDOWN:
+			case WM_RBUTTONDOWN:
+			case WM_MBUTTONDOWN: {
+				::SetCapture(hwnd_);
+				::SetFocus(hwnd_);
+				int x = GET_X_LPARAM(lParam);
+				int y = GET_Y_LPARAM(lParam);
+				if (wParam & MK_SHIFT) {
+					// Start rotation effect.
+					last_mouse_pos_.x = current_mouse_pos_.x = x;
+					last_mouse_pos_.y = current_mouse_pos_.y = y;
+					mouse_rotation_ = true;
+				}
+				else {
+					CefBrowserHost::MouseButtonType btnType =
+						(message == WM_LBUTTONDOWN
+							? MBT_LEFT
+							: (message == WM_RBUTTONDOWN ? MBT_RIGHT : MBT_MIDDLE));
+					if (!cancelPreviousClick && (btnType == last_click_button_)) {
+						++last_click_count_;
+					}
+					else {
+						last_click_count_ = 1;
+						last_click_x_ = x;
+						last_click_y_ = y;
+					}
+					last_click_time_ = currentTime;
+					last_click_button_ = btnType;
+
+					if (browser_host) {
+						CefMouseEvent mouse_event;
+						mouse_event.x = x;
+						mouse_event.y = y;
+						//last_mouse_down_on_view_ = !IsOverPopupWidget(x, y);
+						//ApplyPopupOffset(mouse_event.x, mouse_event.y);
+						//DeviceToLogical(mouse_event, device_scale_factor_);
+						mouse_event.modifiers = GetCefMouseModifiers(wParam);
+						browser_host->SendMouseClickEvent(mouse_event, btnType, false,
+							last_click_count_);
+					}
+				}
+			} break;
+
+			case WM_LBUTTONUP:
+			case WM_RBUTTONUP:
+			case WM_MBUTTONUP:
+				if (GetCapture() == hwnd_)
+					ReleaseCapture();
+				if (mouse_rotation_) {
+					// End rotation effect.
+					mouse_rotation_ = false;
+					//renderer_.SetSpin(0, 0);
+					//Invalidate();
+				}
+				else {
+					int x = GET_X_LPARAM(lParam);
+					int y = GET_Y_LPARAM(lParam);
+					CefBrowserHost::MouseButtonType btnType =
+						(message == WM_LBUTTONUP
+							? MBT_LEFT
+							: (message == WM_RBUTTONUP ? MBT_RIGHT : MBT_MIDDLE));
+					if (browser_host) {
+						CefMouseEvent mouse_event;
+						mouse_event.x = x;
+						mouse_event.y = y;
+						//if (last_mouse_down_on_view_ && IsOverPopupWidget(x, y) &&
+						//	(GetPopupXOffset() || GetPopupYOffset())) {
+						//	break;
+						//}
+						//ApplyPopupOffset(mouse_event.x, mouse_event.y);
+						//DeviceToLogical(mouse_event, device_scale_factor_);
+						mouse_event.modifiers = GetCefMouseModifiers(wParam);
+						browser_host->SendMouseClickEvent(mouse_event, btnType, true,
+							last_click_count_);
+					}
+				}
+				break;
+
+			case WM_MOUSEMOVE: {
+				int x = GET_X_LPARAM(lParam);
+				int y = GET_Y_LPARAM(lParam);
+				if (mouse_rotation_) {
+					// Apply rotation effect.
+					current_mouse_pos_.x = x;
+					current_mouse_pos_.y = y;
+					//renderer_.IncrementSpin(current_mouse_pos_.x - last_mouse_pos_.x,
+					//	current_mouse_pos_.y - last_mouse_pos_.y);
+					last_mouse_pos_.x = current_mouse_pos_.x;
+					last_mouse_pos_.y = current_mouse_pos_.y;
+					//Invalidate();
+				}
+				else {
+					if (!mouse_tracking_) {
+						// Start tracking mouse leave. Required for the WM_MOUSELEAVE event to
+						// be generated.
+						TRACKMOUSEEVENT tme;
+						tme.cbSize = sizeof(TRACKMOUSEEVENT);
+						tme.dwFlags = TME_LEAVE;
+						tme.hwndTrack = hwnd_;
+						TrackMouseEvent(&tme);
+						mouse_tracking_ = true;
+					}
+
+					if (browser_host) {
+						CefMouseEvent mouse_event;
+						mouse_event.x = x;
+						mouse_event.y = y;
+						//ApplyPopupOffset(mouse_event.x, mouse_event.y);
+						//DeviceToLogical(mouse_event, device_scale_factor_);
+						mouse_event.modifiers = GetCefMouseModifiers(wParam);
+						browser_host->SendMouseMoveEvent(mouse_event, false);
+					}
+				}
+				break;
+			}
+
+			case WM_MOUSELEAVE: {
+				if (mouse_tracking_) {
+					// Stop tracking mouse leave.
+					TRACKMOUSEEVENT tme;
+					tme.cbSize = sizeof(TRACKMOUSEEVENT);
+					tme.dwFlags = TME_LEAVE & TME_CANCEL;
+					tme.hwndTrack = hwnd_;
+					TrackMouseEvent(&tme);
+					mouse_tracking_ = false;
+				}
+
+				if (browser_host) {
+					// Determine the cursor position in screen coordinates.
+					POINT p;
+					::GetCursorPos(&p);
+					::ScreenToClient(hwnd_, &p);
+
+					CefMouseEvent mouse_event;
+					mouse_event.x = p.x;
+					mouse_event.y = p.y;
+					//DeviceToLogical(mouse_event, device_scale_factor_);
+					mouse_event.modifiers = GetCefMouseModifiers(wParam);
+					browser_host->SendMouseMoveEvent(mouse_event, true);
+				}
+			} break;
+
+			case WM_MOUSEWHEEL:
+				if (browser_host) {
+					POINT screen_point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+					HWND scrolled_wnd = ::WindowFromPoint(screen_point);
+					if (scrolled_wnd != hwnd_)
+						break;
+
+					ScreenToClient(hwnd_, &screen_point);
+					int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+					CefMouseEvent mouse_event;
+					mouse_event.x = screen_point.x;
+					mouse_event.y = screen_point.y;
+					//ApplyPopupOffset(mouse_event.x, mouse_event.y);
+					//DeviceToLogical(mouse_event, device_scale_factor_);
+					mouse_event.modifiers = GetCefMouseModifiers(wParam);
+					browser_host->SendMouseWheelEvent(mouse_event,
+						IsKeyDown(VK_SHIFT) ? delta : 0,
+						!IsKeyDown(VK_SHIFT) ? delta : 0);
+				}
+				break;
+			}
+		}
+	}
+
+	//bool cef_ui_handler::IsOverPopupWidget(int x, int y) const {
+	//	CEF_REQUIRE_UI_THREAD();
+	//	const CefRect& rc = renderer_.popup_rect();
+	//	int popup_right = rc.x + rc.width;
+	//	int popup_bottom = rc.y + rc.height;
+	//	return (x >= rc.x) && (x < popup_right) && (y >= rc.y) && (y < popup_bottom);
+	//}
+
+	//int cef_ui_handler::GetPopupXOffset() const {
+	//	CEF_REQUIRE_UI_THREAD();
+	//	return renderer_.original_popup_rect().x - renderer_.popup_rect().x;
+	//}
+
+	//int cef_ui_handler::GetPopupYOffset() const {
+	//	CEF_REQUIRE_UI_THREAD();
+	//	return renderer_.original_popup_rect().y - renderer_.popup_rect().y;
+	//}
+
+	//void cef_ui_handler::ApplyPopupOffset(int& x, int& y) const {
+	//	if (IsOverPopupWidget(x, y)) {
+	//		x += GetPopupXOffset();
+	//		y += GetPopupYOffset();
+	//	}
+	//}
 }

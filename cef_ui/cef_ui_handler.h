@@ -65,12 +65,32 @@ namespace cef_ui
 			CefBrowserSettings& settings,
 			bool* no_javascript_access) OVERRIDE;
 
+		// WndProc message handlers.
+		void OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam);
+		void OnSize();
+		void OnFocus(bool setFocus);
+		void OnCaptureLost();
+		void OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam);
+		void OnPaint();
+		bool OnEraseBkgnd();
+
+		void OnIMESetContext(UINT message, WPARAM wParam, LPARAM lParam);
+		void OnIMEStartComposition();
+		void OnIMEComposition(UINT message, WPARAM wParam, LPARAM lParam);
+		void OnIMECancelCompositionEvent();
+
+		// Manage popup bounds.
+		//bool IsOverPopupWidget(int x, int y) const;
+		//int GetPopupXOffset() const;
+		//int GetPopupYOffset() const;
+		//void ApplyPopupOffset(int& x, int& y) const;
+
 		// Request that all existing browser windows close.
 		void CloseAllBrowsers(bool force_close);
 
 		bool IsClosing() const { return is_closing_; }
 
-		void trigger_resize();
+		//void trigger_resize();
 
 		void SetFun(std::function<void(const void*, size_t, size_t)>);
 	private:
@@ -87,6 +107,19 @@ namespace cef_ui
 		bool is_closing_;
 
 		std::function<void(const void*, size_t, size_t)> m_fun = nullptr;
+
+
+		// Mouse state tracking.
+		POINT last_mouse_pos_;
+		POINT current_mouse_pos_;
+		bool mouse_rotation_;
+		bool mouse_tracking_;
+		int last_click_x_;
+		int last_click_y_;
+		CefBrowserHost::MouseButtonType last_click_button_;
+		int last_click_count_;
+		double last_click_time_;
+		bool last_mouse_down_on_view_;
 
 		IMPLEMENT_REFCOUNTING(cef_ui_handler);
 	};

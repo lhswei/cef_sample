@@ -123,66 +123,103 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 	switch (message)
 	{
 		// this message is read when the window is closed
-	case WM_DESTROY:
-	{
-		MessageBox(NULL,
-			L"Exit and Close!",
-			L"Want to exit the game!",
-			MB_ICONEXCLAMATION | MB_OK);
-		// close the application entirely
-		PostQuitMessage(0);
-		return 0;
-	} break;
-
-	/*case WM_MOUSEMOVE:
-	{
-		float xPos = GET_X_LPARAM(lParam);
-		float yPos = GET_Y_LPARAM(lParam);
-
-		log("Message Mouse Move: %d %d\n", xPos, yPos);
-	} break;*/
-	case WM_CREATE:
-	{
-		CefWindowInfo window_info;
-		CefBrowserSettings browser_settings;
-		CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
-
-		auto fun = [](const void* buffer, size_t width, size_t height)-> void {
-			GameApp::Instance()->Update(buffer, width, height);
-		};
-
-		handler->SetFun(fun);
-
-		std::string url("https://www.baidu.com/");
-
-		window_info.SetAsPopup(NULL, "cef browser");
-		RECT wndRect;
-		wndRect.left = 0;//SCREEN_WIDTH / 4;
-		wndRect.top = 0;// SCREEN_HEIGHT / 4;
-		wndRect.right = 300;// (SCREEN_WIDTH * 3) / 4;
-		wndRect.bottom = 400;// (SCREEN_HEIGHT * 3) / 4;
-		window_info.SetAsChild(hWnd, wndRect);
-		window_info.SetAsWindowless(hWnd);
-		// Create the first browser window.
-		CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
-			NULL);
-		break;
-
-	}
-	
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-
-		CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
-		if (handler.get())
+		case WM_DESTROY:
 		{
-			handler.get()->trigger_resize();
+			MessageBox(NULL,
+				L"Exit and Close!",
+				L"Want to exit the game!",
+				MB_ICONEXCLAMATION | MB_OK);
+			// close the application entirely
+			PostQuitMessage(0);
+			return 0;
+		} break;
+
+		case WM_LBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
+		case WM_MBUTTONUP:
+		case WM_MOUSEMOVE:
+		case WM_MOUSELEAVE:
+		case WM_MOUSEWHEEL:
+		{
+			//float xPos = GET_X_LPARAM(lParam);
+			//float yPos = GET_Y_LPARAM(lParam);
+			//log("Message Mouse Move: %d %d\n", xPos, yPos);
+
+			CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
+			if (handler.get())
+			{
+				handler.get()->OnMouseEvent(message, wParam, lParam);
+			}
+		} break;
+		case WM_SYSCHAR:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_CHAR:
+		{
+			CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
+			if (handler.get())
+			{
+				handler.get()->OnKeyEvent(message, wParam, lParam);
+			}
+			break;
 		}
-		break;
-	}
+		case WM_SETFOCUS:
+		case WM_KILLFOCUS:
+		{
+			CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
+			if (handler.get())
+			{
+				handler.get()->OnFocus(message == WM_SETFOCUS);
+			}
+			break;
+		}
+		case WM_CREATE:
+		{
+			CefWindowInfo window_info;
+			CefBrowserSettings browser_settings;
+			CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
+
+			auto fun = [](const void* buffer, size_t width, size_t height)-> void {
+				GameApp::Instance()->Update(buffer, width, height);
+			};
+
+			handler->SetFun(fun);
+
+			std::string url("https://www.baidu.com/");
+
+			window_info.SetAsPopup(NULL, "cef browser");
+			RECT wndRect;
+			wndRect.left = 0;//SCREEN_WIDTH / 4;
+			wndRect.top = 0;// SCREEN_HEIGHT / 4;
+			wndRect.right = 300;// (SCREEN_WIDTH * 3) / 4;
+			wndRect.bottom = 400;// (SCREEN_HEIGHT * 3) / 4;
+			window_info.SetAsChild(hWnd, wndRect);
+			window_info.SetAsWindowless(hWnd);
+			// Create the first browser window.
+			CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
+				NULL);
+			break;
+
+		}
+		
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			BeginPaint(hWnd, &ps);
+			EndPaint(hWnd, &ps);
+
+			CefRefPtr<cef_ui::cef_ui_handler> handler = cef_ui::cef_ui_handler::GetInstance();
+			if (handler.get())
+			{
+				handler.get()->OnPaint();
+			}
+			break;
+		}
 	}
 
 	// Handle any messages the switch statement didn't
