@@ -255,13 +255,13 @@ namespace cef_ui
 			HWND hwnd_ = browser_host->GetWindowHandle();
 			LONG currentTime = 0;
 			bool cancelPreviousClick = false;
-
+			int x = GET_X_LPARAM(lParam) - 100;
+			int y = GET_Y_LPARAM(lParam) - 100;
 			if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN ||
 				message == WM_MBUTTONDOWN || message == WM_MOUSEMOVE ||
 				message == WM_MOUSELEAVE) {
 				currentTime = GetMessageTime();
-				int x = GET_X_LPARAM(lParam);
-				int y = GET_Y_LPARAM(lParam);
+
 				cancelPreviousClick =
 					(abs(last_click_x_ - x) > (GetSystemMetrics(SM_CXDOUBLECLK) / 2)) ||
 					(abs(last_click_y_ - y) > (GetSystemMetrics(SM_CYDOUBLECLK) / 2)) ||
@@ -281,8 +281,8 @@ namespace cef_ui
 			case WM_MBUTTONDOWN: {
 				::SetCapture(hwnd_);
 				::SetFocus(hwnd_);
-				int x = GET_X_LPARAM(lParam);
-				int y = GET_Y_LPARAM(lParam);
+				//int x = GET_X_LPARAM(lParam);
+				//int y = GET_Y_LPARAM(lParam);
 				if (wParam & MK_SHIFT) {
 					// Start rotation effect.
 					last_mouse_pos_.x = current_mouse_pos_.x = x;
@@ -331,8 +331,8 @@ namespace cef_ui
 					//Invalidate();
 				}
 				else {
-					int x = GET_X_LPARAM(lParam);
-					int y = GET_Y_LPARAM(lParam);
+					//int x = GET_X_LPARAM(lParam);
+					//int y = GET_Y_LPARAM(lParam);
 					CefBrowserHost::MouseButtonType btnType =
 						(message == WM_LBUTTONUP
 							? MBT_LEFT
@@ -355,8 +355,8 @@ namespace cef_ui
 				break;
 
 			case WM_MOUSEMOVE: {
-				int x = GET_X_LPARAM(lParam);
-				int y = GET_Y_LPARAM(lParam);
+				//int x = GET_X_LPARAM(lParam);
+				//int y = GET_Y_LPARAM(lParam);
 				if (mouse_rotation_) {
 					// Apply rotation effect.
 					current_mouse_pos_.x = x;
@@ -419,8 +419,10 @@ namespace cef_ui
 			} break;
 
 			case WM_MOUSEWHEEL:
+				//int x = GET_X_LPARAM(lParam);
+				//int y = GET_Y_LPARAM(lParam);
 				if (browser_host) {
-					POINT screen_point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+					POINT screen_point = { x, y };
 					HWND scrolled_wnd = ::WindowFromPoint(screen_point);
 					if (scrolled_wnd != hwnd_)
 						break;
