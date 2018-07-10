@@ -5,7 +5,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 # Project name.
 # TODO: Change this line to match your project name when you copy this file.
-project(demon)
+project(client)
 
 # Use folders in the resulting project files.
 set_property(GLOBAL PROPERTY OS_FOLDERS ON)
@@ -19,7 +19,7 @@ else()
 endif()
 
 #
-# CEF_ROOT setup.
+# CLIENT_ROOT setup.
 # This variable must be set to locate the binary distribution.
 # TODO: Choose one of the below examples and comment out the rest.
 #
@@ -28,28 +28,24 @@ endif()
 #            distribution and your project.
 # A. Comment in these lines:
 #
-set(CEF_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+set(CLIENT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CLIENT_ROOT}/cmake")
 
-set(LUA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lua_source" )
-set(LUA_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/lua_source/include" )
-
+set(LUA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/lua_source" )
+set(LUA_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/src/lua_source/include" )
 set(CEF_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/cef_ui" )
-# Execute FindCEF.cmake which must exist in CMAKE_MODULE_PATH.
-find_package(CEF REQUIRED)
+
+# Execute FindCLIENT.cmake which must exist in CMAKE_MODULE_PATH.
+find_package(CLIENT REQUIRED)
 
 # Include application targets.
 # Comes from the <target>/CMakeLists.txt file in the current directory.
 # TODO: Change these lines to match your project target when you copy this file.
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test")
-  add_subdirectory(test)
-endif()
-
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/writesoul" )
-  add_subdirectory(writesoul)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/uitest")
+  add_subdirectory(test/uitest)
 endif()
 
 # Display configuration settings.
-PRINT_CEF_CONFIG()
+PRINT_CLIENT_CONFIG()
 
