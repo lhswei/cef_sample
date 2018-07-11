@@ -35,6 +35,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CLIENT_ROOT}/cmake")
 set(LUA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/lua_source" )
 set(LUA_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/src/lua_source/include")
 set(CEF_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/cef_ui" )
+set(APP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/APP" )
 
 file(GLOB LUA_INCLUDE_LIST "${LUA_INCLUDE}/*.h" "${LUA_INCLUDE}/*.hpp")
 

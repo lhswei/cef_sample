@@ -47,8 +47,8 @@ void GameWin::InitWin(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		wc.lpszClassName,    // name of the window class
 		L"GUI Client",   // title of the window
 		WS_OVERLAPPEDWINDOW,    // window style
-		600,    // x-position of the window
-		300,    // y-position of the window
+		SCREEN_XPOS,    // x-position of the window
+		SCREEN_YPOS,    // y-position of the window
 		SCREEN_WIDTH,    // width of the window
 		SCREEN_HEIGHT,    // height of the window
 		NULL,    // we have no parent window, NULL
