@@ -43,7 +43,7 @@ void GameWin::InitWin(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wc.lpszClassName = L"GameMainWindowsClass";
-
+	
 	// register the window class
 	RegisterClassEx(&wc);
 
