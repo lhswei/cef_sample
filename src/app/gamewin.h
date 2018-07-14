@@ -11,10 +11,13 @@ private:
 	GameWin& operator = (const GameWin &) = delete;
 
 public:
-	static GameWin* Instance();
 	void InitWin(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 	void Release();
 	HWND GetWwnd() {return m_Hwnd;}
+
+public:
+	static GameWin* Instance();
+
 private:
 	HWND m_Hwnd;
 	static std::unique_ptr<GameWin> m_instance;

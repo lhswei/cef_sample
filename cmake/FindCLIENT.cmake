@@ -1,4 +1,4 @@
-# Find the CEF binary distribution root directory.
+# Find the CLIENT binary distribution root directory.
 set(_CLIENT_ROOT "")
 if(CLIENT_ROOT AND IS_DIRECTORY "${CLIENT_ROOT}")
   set(_CLIENT_ROOT "${CLIENT_ROOT}")

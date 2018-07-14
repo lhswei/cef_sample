@@ -51,10 +51,10 @@ include_directories(
 
 # Determine the target output directory.
 SET_TARGET_OUT_DIR(UITEST_TARGET_OUT_DIR)
-
 set(UITEST_ALL_LIST ${LUA_ALL_LIST} ${UITEST_SRC_LIST} ${CEF_UI_LIST} ${APP_ALL_LIST})
 ## test
 add_executable(${UITEST_TARGET} WIN32 ${UITEST_ALL_LIST})
+SET_EXECUTABLE_TARGET_PROPERTIES(${UITEST_TARGET})
 
 
 source_group("src" FILES ${UITEST_ROOT_SRC})

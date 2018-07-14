@@ -9,8 +9,13 @@ LRESULT CALLBACK WindowProc(HWND hWnd,
 	LPARAM lParam);
 
 std::unique_ptr<GameWin> GameWin::m_instance;
+std::once_flag GameWin::m_onceFlag;
 
 GameWin::GameWin() {
+
+}
+
+void GameWin::Release() {
 
 }
 
@@ -70,7 +75,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		// this message is read when the window is closed
 		case WM_DESTROY:
 		{
-			MessageBox(NULL,
+			MessageBox(hWnd,
 				L"Exit and Close!",
 				L"Want to exit the game!",
 				MB_ICONEXCLAMATION | MB_OK);
