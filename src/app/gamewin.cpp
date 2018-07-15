@@ -21,7 +21,7 @@ void GameWin::Release() {
 
 GameWin* GameWin::Instance() {
 	std::call_once(m_onceFlag, []() {
-		log("ini game windows!");
+		log("init game windows!\n");
 		m_instance.reset(new GameWin);
 	});
 	return m_instance.get();
@@ -61,6 +61,7 @@ void GameWin::InitWin(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		hInstance,    // application handle
 		NULL);    // used with multiple windows, NULL
 
+	m_HWnd = hWnd;
 	// display the window on the screen
 	ShowWindow(hWnd, nCmdShow);
 }
@@ -75,7 +76,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		// this message is read when the window is closed
 		case WM_DESTROY:
 		{
-			MessageBox(hWnd,
+			MessageBox(NULL,
 				L"Exit and Close!",
 				L"Want to exit the game!",
 				MB_ICONEXCLAMATION | MB_OK);

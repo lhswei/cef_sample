@@ -19,11 +19,10 @@ private:
 	GameApp& operator = (const GameApp &) = delete;
 	void initLuaState();
 	bool setup();
-	void getInputEvents();
 
 public:
 	static GameApp* Instance();
-	bool InitGame(HWND hwnd);
+	bool InitGame(HWND hWnd);
 	void Run();
 	void Release();
 
@@ -40,7 +39,7 @@ private:
 	// Ã¿Ö¡Ö´ÐÐ
 	void OnFps();
 private:
-	HWND m_Hwnd;
+	HWND m_HWnd;
 	static std::unique_ptr<GameApp> m_instance;
 	static std::once_flag m_onceFlag;
 

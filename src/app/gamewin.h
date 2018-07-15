@@ -13,13 +13,13 @@ private:
 public:
 	void InitWin(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 	void Release();
-	HWND GetWwnd() {return m_Hwnd;}
+	HWND GetWwnd() {return m_HWnd;}
 
 public:
 	static GameWin* Instance();
 
 private:
-	HWND m_Hwnd;
+	HWND m_HWnd;
 	static std::unique_ptr<GameWin> m_instance;
 	static std::once_flag m_onceFlag;
 };

@@ -11,13 +11,29 @@ GameApp::GameApp() {
 
 GameApp* GameApp::Instance() {
 	std::call_once(m_onceFlag, []() {
-		log("ini game app!");
+		log("init game app!\n");
 		m_instance.reset(new GameApp);
 	});
 	return m_instance.get();
 }
 
-void GameApp::Release() {
+bool GameApp::InitGame(HWND hWnd){
+	m_HWnd = hWnd;
+	return true;
+}
+
+void GameApp::Release(){
+
+
+}
+
+bool GameApp::setup(){
+
+	return true;
+}
+
+void GameApp::initLuaState(){
+
 
 }
 
@@ -63,9 +79,4 @@ void GameApp::OnFps(){
 
 void GameApp::OnSec(){
 	
-}
-
-bool GameApp::InitGame(HWND hwnd){
-	m_Hwnd = hwnd;
-	return true;
 }

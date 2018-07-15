@@ -35,7 +35,7 @@ file(GLOB_RECURSE APP_ALL_LIST
   "${_CLIENT_ROOT}/utils.h"
 )
 
-set(CLIENT_WINDOWS_RESOURCES_WIN_SRCS
+set(UITEST_WINDOWS_RESOURCES_WIN_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/resources/win/uitest.rc
   ${CMAKE_CURRENT_SOURCE_DIR}/resources/win/small.ico
 )
@@ -51,6 +51,7 @@ include_directories(
 	${_CLIENT_ROOT}/include/dx9sdk/include
 	${_CLIENT_ROOT}/src/lua_source/include
 	${_CLIENT_ROOT}/src/app
+	${_CLIENT_ROOT}/src
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CEF_UI_ROOT}
 )
@@ -69,7 +70,7 @@ source_group("headers\\lua" FILES ${LUA_INCLUDE_LIST})
 source_group("src\\cef_ui" FILES ${CEF_UI_LIST}) 
 source_group("src\\lua" FILES ${LUA_ALL_LIST}) 
 source_group("src\\app" FILES ${APP_ALL_LIST}) 
-source_group("resources\\win" FILES ${CLIENT_WINDOWS_RESOURCES_WIN_SRCS})
+source_group("resources\\win" FILES ${UITEST_WINDOWS_RESOURCES_WIN_SRCS})
 
 # Add the custom manifest files to the executable.
 ADD_WINDOWS_MANIFEST("${UITEST_TARGET_OUT_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" "${UITEST_TARGET}" "exe")
