@@ -14,4 +14,18 @@ const int SCREEN_YPOS = 300;
 
 typedef std::chrono::duration<int64_t, ratio<1, GAME_FPS>> LT_GAME_FPS;
 
+enum class  Even_Type {
+	EI_MOUSE,
+	EI_KEY,
+	EI_PAIN,
+	EI_RESIZE,
+	EI_FOCUS,
+	EI_CAPTURELOST,
+	EI_ERASEBKGND,
+	EI_IMESET,
+	EI_IMESTART,
+	EI_IMECOMP,
+	EI_IMECANCELCOMP,
+};
+
 #endif //_GAME_DEFINE_H_

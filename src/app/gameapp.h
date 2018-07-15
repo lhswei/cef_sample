@@ -26,6 +26,7 @@ public:
 	void Run();
 	void Release();
 
+	void OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam);
 private:
 	// Ñ­»·
 	void Loop();

@@ -1,3 +1,4 @@
+#include <windowsx.h>
 #include "gameapp.h"
 #include <thread>
 #include "../utils.h"
@@ -79,4 +80,8 @@ void GameApp::OnFps(){
 
 void GameApp::OnSec(){
 	
+}
+
+void GameApp::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam){
+	log("wParam = %d, lParam = %d\n", wParam, lParam);
 }
