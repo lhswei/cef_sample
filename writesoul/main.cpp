@@ -200,7 +200,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			wndRect.bottom = 400;// (SCREEN_HEIGHT * 3) / 4;
 			window_info.SetAsChild(hWnd, wndRect);
 			window_info.SetAsWindowless(hWnd);
-			// Create the first browser window.
+			//Create the first browser window.
 			CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
 				NULL);
 			break;
