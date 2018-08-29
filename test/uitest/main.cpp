@@ -1,7 +1,7 @@
 #include <windows.h>
 #include "gamewin.h"
 #include "gameapp.h"
-#include "utils.h"
+#include "../src/utils.h"
 
 void BeforeCreate();
 void BeforeExit();
