@@ -74,7 +74,7 @@ namespace cef_ui
 
 		// V8渲染引擎，需要多进程模式
 		// 在这里不需要v8渲染，使用单进程模式
-		//settings.single_process = 1;
+		settings.single_process = 1;
 		// Initialize CEF.
 		CefInitialize(main_args, settings, app.get(), NULL);
 
