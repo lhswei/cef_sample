@@ -23,10 +23,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	GameApp* pGameApp = GameApp::Instance();
 	pGameApp->InitGame(hwnd);
 
-	// auto funEvent = CreateDelegate(pGameApp, &GameApp::OnKeyEvent); //´´½¨Î¯ÍÐ
-	// void* ppfun = static_cast<void*>(&funEvent);
-
-
 	pGameApp->Run();
 
 	// exit

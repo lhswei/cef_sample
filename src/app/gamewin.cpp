@@ -155,88 +155,88 @@ void GameWin::UnRegisterEvent(int eventId){
 // this is the main message handler for the program
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	GameWin* self = GameWin::Instance();
+	//GameWin* self = GameWin::Instance();
 
-	if (!self)
-    	return DefWindowProc(hWnd, message, wParam, lParam);
+	//if (!self)
+ //   	return DefWindowProc(hWnd, message, wParam, lParam);
 
-	// sort through and find what code to run for the message given
-	switch (message)
-	{
-		// this message is read when the window is closed
-		case WM_DESTROY:
-		{
-			MessageBox(NULL,
-				L"Exit and Close!",
-				L"Want to exit the game!",
-				MB_ICONEXCLAMATION | MB_OK);
-			// close the application entirely
-			PostQuitMessage(0);
-			return 0;
-		} break;
-		case WM_IME_SETCONTEXT:
-			self->OnIMESetContext(message, wParam, lParam);
-			return 0;
-		case WM_IME_STARTCOMPOSITION:{
-			self->OnIMEStartComposition();
-			return 0;	
-		case WM_IME_COMPOSITION:
-			self->OnIMEComposition(message, wParam, lParam);
-			return 0;
-		case WM_IME_ENDCOMPOSITION:
-			self->OnIMECancelCompositionEvent();
-			// Let WTL call::DefWindowProc() and release its resources.
-			break;
-		case WM_LBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_MBUTTONDOWN:
-		case WM_LBUTTONUP:
-		case WM_RBUTTONUP:
-		case WM_MBUTTONUP:
-		case WM_MOUSEMOVE:
-		case WM_MOUSELEAVE:
-		case WM_MOUSEWHEEL:
-			self->OnMouseEvent(message, wParam, lParam);
-			break;
+	//// sort through and find what code to run for the message given
+	//switch (message)
+	//{
+	//	// this message is read when the window is closed
+	//	case WM_DESTROY:
+	//	{
+	//		MessageBox(NULL,
+	//			L"Exit and Close!",
+	//			L"Want to exit the game!",
+	//			MB_ICONEXCLAMATION | MB_OK);
+	//		// close the application entirely
+	//		PostQuitMessage(0);
+	//		return 0;
+	//	} break;
+	//	case WM_IME_SETCONTEXT:
+	//		self->OnIMESetContext(message, wParam, lParam);
+	//		return 0;
+	//	case WM_IME_STARTCOMPOSITION:{
+	//		self->OnIMEStartComposition();
+	//		return 0;	
+	//	case WM_IME_COMPOSITION:
+	//		self->OnIMEComposition(message, wParam, lParam);
+	//		return 0;
+	//	case WM_IME_ENDCOMPOSITION:
+	//		self->OnIMECancelCompositionEvent();
+	//		// Let WTL call::DefWindowProc() and release its resources.
+	//		break;
+	//	case WM_LBUTTONDOWN:
+	//	case WM_RBUTTONDOWN:
+	//	case WM_MBUTTONDOWN:
+	//	case WM_LBUTTONUP:
+	//	case WM_RBUTTONUP:
+	//	case WM_MBUTTONUP:
+	//	case WM_MOUSEMOVE:
+	//	case WM_MOUSELEAVE:
+	//	case WM_MOUSEWHEEL:
+	//		self->OnMouseEvent(message, wParam, lParam);
+	//		break;
 
-		case WM_SIZE:
-			self->OnSize();
-			break;
+	//	case WM_SIZE:
+	//		self->OnSize();
+	//		break;
 
-		case WM_SETFOCUS:
-		case WM_KILLFOCUS:
-			self->OnFocus(message == WM_SETFOCUS);
-			break;
+	//	case WM_SETFOCUS:
+	//	case WM_KILLFOCUS:
+	//		self->OnFocus(message == WM_SETFOCUS);
+	//		break;
 
-		case WM_CAPTURECHANGED:
-		case WM_CANCELMODE:
-			self->OnCaptureLost();
-			break;
+	//	case WM_CAPTURECHANGED:
+	//	case WM_CANCELMODE:
+	//		self->OnCaptureLost();
+	//		break;
 
-		case WM_SYSCHAR:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_CHAR:
-			self->OnKeyEvent(message, wParam, lParam);
-			break;
+	//	case WM_SYSCHAR:
+	//	case WM_SYSKEYDOWN:
+	//	case WM_SYSKEYUP:
+	//	case WM_KEYDOWN:
+	//	case WM_KEYUP:
+	//	case WM_CHAR:
+	//		self->OnKeyEvent(message, wParam, lParam);
+	//		break;
 
-		case WM_PAINT:
-			self->OnPaint();
-			return 0;
+	//	case WM_PAINT:
+	//		self->OnPaint();
+	//		return 0;
 
-		case WM_ERASEBKGND:
-			if (self->OnEraseBkgnd())
-				break;
-			// Don't erase the background.
-			return 0;
-		default:
-		{
+	//	case WM_ERASEBKGND:
+	//		if (self->OnEraseBkgnd())
+	//			break;
+	//		// Don't erase the background.
+	//		return 0;
+	//	default:
+	//	{
 
-		}
-	}
+	//	}
+	//}
 
-	// Handle any messages the switch statement didn't
+	//// Handle any messages the switch statement didn't
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
